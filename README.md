@@ -34,6 +34,21 @@
 </div>  
 <hr/>
 
+## 실행화면_관리자(푸드 상품 관리)
+<div>
+<img src="https://user-images.githubusercontent.com/74242098/99427297-9343a480-2948-11eb-8b4c-ef4bf98081b5.png" width="400"></img>
+<img src="https://user-images.githubusercontent.com/74242098/99427299-950d6800-2948-11eb-8e2b-148dab6cf10d.png" width="400"></img>
+</div>  
+<hr/>
+
+
+## 실행화면_관리자(푸드 매출)
+<div>
+<img src="https://user-images.githubusercontent.com/74242098/99427301-95a5fe80-2948-11eb-882f-62e36e1c01d6.png" width="400"></img>
+<img src="https://user-images.githubusercontent.com/74242098/99427307-96d72b80-2948-11eb-8639-3fea52d759aa.png" width="400"></img>
+</div>  
+<hr/>
+
 ## 실행화면_마이페이지 화면
 <div>
 <img src="https://user-images.githubusercontent.com/74242098/99419520-8c646400-293f-11eb-89be-ffa062c89377.png" width="400"></img>
