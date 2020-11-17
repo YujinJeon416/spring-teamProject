@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="mappers.kdh-food-mapper">
+
+<!-- 상품 전체 조회 -->
+<select id="selectListFood" resultType="KdhFoodVo">
+	select * from tbl_food
+	order by food_num desc
+</select>
+	
+<!-- 해당 상품 조회 -->
+<select id="selectFoodbyNum" resultType="KdhFoodVo">
+	select * from tbl_food
+	where food_num = #{food_num}
+</select>
+
+<!-- food code 100(스낵)만 9개 선택 -->
+<select id="selectListFoodCode100" resultType="KdhFoodVo">
+select *
+from (select rownum rnum, a.*
+        from (select * from tbl_food
+            where food_code = 100
+            order by food_num desc) a)
+where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- food code 200(음료)만 9개 선택 -->
+<select id="selectListFoodCode200" resultType="KdhFoodVo">
+select *
+from (select rownum rnum, a.*
+        from (select * from tbl_food
+            where food_code = 200
+            order by food_num desc) a)
+where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- food code 300(패키지)만 9개 선택 -->
+<select id="selectListFoodCode300" resultType="KdhFoodVo">
+select *
+from (select rownum rnum, a.*
+        from (select * from tbl_food
+            where food_code = 300
+            order by food_num desc) a)
+where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- 최신 상품 3개 구하기 -->
+<select id="selectListLatestFood3" resultType="KdhFoodVo">
+select *
+from(select * from tbl_food
+	order by food_num desc)
+where rownum between 1 and 3
+</select>
+
+<!-- 상품 페이징 -->
+<select id="listPage" resultType="KdhFoodVo">
+select *
+from (select rownum rnum, a.*
+        from (select * from tbl_food
+            order by food_num desc) a)
+where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- 상품 구매내역 페이징 -->
+<select id="foodBuyListPage" resultType="KdhAdminFoodBuyListDto">
+	select * from (select rownum rnum, a.*
+					from (select f.food_name, fl.food_buy_code, fl.food_num,
+						fl.user_id, fl.food_buy_total_price,
+						fl.food_buy_date,fl.food_buy_count,fl.food_buy_check
+						from tbl_food_buy_list fl, tbl_food f
+					where fl.food_num = f.food_num
+					<include refid="search"></include>
+					order by fl.food_buy_date desc) a)
+	where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- 페이징 검색 -->
+	<sql id="search">
+		<if test="searchType != null">
+			<choose>
+				<when test='searchType == "all"'>
+				</when>
+				<when test='searchType == "food_name"'>
+					and f.food_name like '%' || #{keyword} || '%'
+				</when>
+				<when test='searchType == "user_id"'>
+					and fl.user_id like '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>		
+	</sql>
+
+<!-- 관리자 - 푸드 상품관리 페이지 페이징 -->
+<select id="foodPage" resultType="KdhFoodVo">
+	select * from (select rownum rnum, a.*
+		from (select food_num, food_code, food_name, food_price, food_count, food_image
+				from tbl_food
+				<if test='searchType != "all"'>
+					<choose>
+						<when test='searchType == "100"'>
+						where food_code='100' and food_name like '%' || #{keyword} || '%'
+						</when>
+						<when test='searchType == "200"'>
+						where food_code='200' and food_name like '%' || #{keyword} || '%'
+						</when>
+						<when test='searchType == "300"'>
+						where food_code='300' and food_name like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</if>
+			order by food_num desc) a)
+	where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- 관리자 - 푸드 상품관리 페이지 페이징 검색 -->
+	<sql id="searchFood">
+		<if test="searchType != null">
+			<choose>
+				<when test='searchType == "all"'>
+				</when>
+				<when test='searchType == "100"'>
+				food_code='100' and food_name like '%' || #{keyword} || '%' 
+				</when>
+				<when test='searchType == "200"'>
+				food_code='200' and food_name like '%' || #{keyword} || '%'
+				</when>
+				<when test='searchType == "300"'>
+				food_code='300' and food_name like '%' || #{keyword} || '%'
+				</when>
+			</choose>
+		</if>		
+	</sql>
+
+<!-- 관리자 - 푸드 상품관리 페이지 상품 갯수 구하기 -->
+<select id="selectFoodPageCount" resultType="int">
+	select count(*) from tbl_food
+	<if test="searchType != null">
+		<choose>
+			<when test='searchType == "100"'>
+				where food_code='100' and food_name like '%' || #{keyword} || '%'
+			</when>
+			<when test='searchType == "200"'>
+				where food_code='200' and food_name like '%' || #{keyword} || '%'
+			</when>
+			<when test='searchType == "300"'>
+				where food_code='300' and food_name like '%' || #{keyword} || '%'
+			</when>
+		</choose>
+	</if>	
+</select>
+
+<!-- 상품 마이페이지 구매내역 페이징 -->
+<select id="foodBuyListMyPage" resultType="KdhAdminFoodBuyListDto">
+	select * from (select rownum rnum, a.* from (select f.food_name, fl.food_buy_code, fl.food_num, fl.user_id, fl.food_buy_total_price, fl.food_buy_date,
+	fl.food_buy_count,fl.food_buy_check
+	from tbl_food_buy_list fl, tbl_food f
+	where fl.food_num = f.food_num and fl.user_id = 'user01'
+	order by fl.food_buy_date desc) a)
+	where rnum between #{startRow} and #{endRow}
+</select>
+
+<!-- 상품 총 개수 구하기 -->
+<select id="selectFoodCount" resultType="int">
+select count(*) from tbl_food
+</select>
+
+<!-- food code 100(스낵) 상품 개수 구하기  -->
+<select id="selectCountFoodCode100" resultType="int">
+select count(*) from tbl_food
+where food_code = 100
+</select>
+
+<!-- food code 200(음료) 상품 개수 구하기 -->
+<select id="selectCountFoodCode200" resultType="int">
+select count(*) from tbl_food
+where food_code = '200'
+</select> 
+
+<!-- food code 300(패키지) 상품 개수 구하기  -->
+<select id="selectCountFoodCode300" resultType="int">
+select count(*) from tbl_food
+where food_code = '300'
+</select>
+
+<!-- 해당 구매 상품 조회 -->
+<select id="selectBuyFoodbyNum" resultType="KdhBuyFoodInfo">
+	select * from tbl_food
+	where food_num = #{food_num}
+</select>
+
+<!-- 구매 내역 테이블 데이터 입력 -->
+<insert id="insertFoodBuy">
+	insert into tbl_food_buy(
+	food_buy_num, food_num, user_id, food_buy_total_price, food_buy_date, food_buy_count)
+	values(seq_food_buy_num.nextval, #{food_num}, #{user_id}, #{food_buy_total_price}, sysdate, #{food_buy_count})
+</insert>
+
+<!-- 구매 내역 리스트 테이블 테이터 입력 -->
+<insert id="insertFoodBuyList">
+	insert into tbl_food_buy_list(food_buy_list_num, food_buy_code, food_num, user_id, food_buy_total_price, 
+	food_buy_date,food_buy_count,food_buy_check)
+	values(seq_food_buy_list_num.nextval, 'FC' || seq_food_buy_list_num.nextval, #{food_num}, #{user_id}, #{food_buy_total_price}, sysdate, #{food_buy_count}, default)
+</insert>
+
+<!-- 유저정보 가져오기 -->
+<select id="selectUserInfo" resultType="KdhUserVo">
+	select * from tbl_user
+	where user_id = #{user_id}
+</select>
+
+<!-- buy.jsp에 쓸 산 금액만 가져오기 -->
+<select id="selectBuyPrice" resultType="int">
+	select food_buy_total_price 
+	from tbl_food_buy
+	where user_id = #{user_id}
+</select>
+
+<!-- 상품 정보 업데이트 -->
+<update id="updateFoodbyNum">
+	update tbl_food set
+    food_image = #{food_image},
+    food_name = #{food_name},
+    food_code = #{food_code},
+    food_price = #{food_price},
+    food_count = #{food_count}
+	where food_num = #{food_num}
+</update>
+
+<!-- 상품 삭제하기 -->
+<delete id="deleteFoodByNum">
+	delete from tbl_food
+	where food_num = #{food_num}
+</delete>
+
+<!-- 구매 내역 삭제하기 -->
+<delete id="deleteFoodBuy">
+	delete tbl_food_buy
+	where food_num = #{food_num}
+</delete>
+
+<!-- 상품 등록하기 -->
+<insert id="insertFood">
+	insert into tbl_food(food_num,food_code,food_name,food_price,food_count,food_image)
+	values(seq_food_num.nextval, #{food_code}, #{food_name}, #{food_price}, #{food_count}, #{food_image})
+</insert>
+
+<!-- 구매 내역 불러오기 -->
+<select id="selectBuyFoodList" resultType="KdhAdminFoodBuyListDto">
+	select fl.food_num, fl.user_id, fl.food_buy_total_price, fl.food_buy_date, fl.food_buy_count, fl.food_buy_check, f.food_name
+	from tbl_food_buy_list fl, tbl_food f
+	where fl.food_num = f.food_num
+    order by food_buy_list_num desc
+</select>
+
+<!-- 푸드 구매 시 재고개수 업데이트 -->
+<update id="updateFoodCount">
+	update tbl_food set
+	food_count = #{food_count}-#{food_buy_count}
+	where food_num = #{buy_food_num}
+</update>
+
+<!-- 상품 구매 내역 가져오기(마이페이지) -->
+<select id="selectMyPageBuyFoodList" resultType="KdhMypageBuyFoodListDto">
+	select f.food_name, fl.food_buy_code, fl.food_num, fl.user_id, fl.food_buy_total_price, fl.food_buy_date,
+	fl.food_buy_count,fl.food_buy_check
+	from tbl_food_buy_list fl, tbl_food f
+	where fl.food_num = f.food_num and fl.user_id = #{user_id}
+	order by fl.food_buy_date desc
+</select>
+
+<!-- 상품 구매 리스트 갯수 구하기 -->
+<select id="selectFoodBuyListCount" resultType="int">
+	select count(*) from tbl_food_buy_list
+	<if test="searchType != null || searchType != ''">
+		<choose>
+			<when test='searchType == "all"'>
+			</when>
+			<when test='searchType == "user_id"'>
+				where user_id like '%' || #{keyword} || '%'
+			</when>
+			<when test='searchType == "food_name"'>
+				fl, tbl_food f
+				where fl.food_num = f.food_num and f.food_name like '%' || #{keyword} || '%'
+			</when>
+		</choose>
+	</if>	
+</select>
+
+<!-- 마이페이지 구매 리스트 유저별로 개수 구하기 -->
+<select id="selectMyPageFoodBuyListCount" resultType="int">
+	select count(*) from tbl_food_buy_list
+	where user_id = #{user_id}
+</select>
+
+<!-- 관리자 페이지 구매 내역 매출액 구하기 -->
+<select id="selectAdminSales" resultType="int">
+	select sum(food_buy_total_price)
+	from tbl_food_buy_list fl, tbl_food f
+	where
+	<if test="food_code != null || food_code != ''">
+		<choose>
+			<when test='food_code == "all"'>
+			</when>
+			<when test='food_code == "100"'>
+				f.food_code = '100' and
+			</when>
+			<when test='food_code == "200"'>
+				f.food_code = '200' and
+			</when>
+			<when test='food_code == "300"'>
+				f.food_code = '300' and
+			</when>
+		</choose>
+	</if>	
+	fl.food_num = f.food_num
+	and food_buy_date >= add_months(to_timestamp(sysdate, 'yyyy-mm-dd HH24:MI:SS'), #{mm_minus})
+</select>
+</mapper>

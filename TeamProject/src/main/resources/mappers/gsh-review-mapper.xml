@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="mappers.gsh-review-mapper">
+	
+	<!-- 	전체 영화 리스트 가져오기 -->
+	<select id="select_review_num">
+		select * from tbl_review
+		order by review_num desc
+	</select>
+	
+		<!-- 영화 리뷰 정보 찾기  -->
+	<select id="selectMovieCode" resultType="GshMovieDto">
+		select *
+		from tbl_movie m, tbl_review r
+		where m.movie_code = r.movie_code
+		order by review_num desc
+	</select>
+	
+	<!-- 리뷰 작성하기 -->
+	<insert id="write_review">
+		insert into tbl_review(review_num, movie_code, user_id, review_content, review_score)
+		values(seq_review_num.nextval, #{movie_code}, #{user_id}, #{review_content}, #{review_score})
+	</insert>
+	
+	<!-- 리뷰 삭제하기 -->
+	<delete id="delete_review">
+		delete from tbl_review
+		where review_num = #{review_num} and user_id = #{user_id}
+	</delete>
+	
+	<!-- 관리자 리뷰 삭제하기 -->
+	<delete id="admin_review_delete">
+		delete from tbl_review
+		where review_num = #{review_num}
+	</delete>
+	
+	<!-- 2020/07/23 추가 -->
+	<!-- 리뷰 수정하기(로그인한 유저만 리뷰 번호로 리뷰 내용, 리뷰 평점 수정) -->
+	<update id="update_review">
+		update tbl_review set
+   	 	review_content = #{review_content},
+   		review_score =  #{review_score}
+		where review_num = #{review_num} and user_id = #{user_id}
+	</update>
+	
+	<!-- 2020/07/22 추가 -->
+	<!-- 작성자 아이디로 리뷰 찾기 -->
+	<select id="search_review">
+		select * from tbl_review
+		where user_id = #{user_id}
+	</select>
+	
+	<!-- 2020/07/23 변경 -->
+	<!-- 해당 영화 리뷰 찾기 -->
+	<select id="selectReviewByCode" resultType="GshReviewVo">
+		select * from tbl_review
+		where movie_code = #{movie_code}
+		order by review_num desc
+	</select>
+	
+	<!-- 해당 영화에 대한 평점 구하기 -->
+	<select id="averageReviewScore" resultType="int">
+		select round(avg(review_score))
+		from tbl_movie m, tbl_review r
+		where m.movie_code = r.movie_code
+		and m.movie_code = #{movie_code}
+		order by review_num desc
+	</select>
+	
+	<!-- 관리자 리뷰 페이지 -->
+	<select id="select_reviewAll" resultType="GshReviewVo">
+		select * from (select rownum rnum, a. * from (select * from tbl_review) a)
+		where rnum between #{start_row} and #{end_row}
+		order by review_num desc
+	</select>
+	
+	<!-- 관리자 페이지 리뷰 총 숫자 구하기 -->
+	<select id="getReviewCount" resultType="integer">
+		select count(*) from tbl_review
+	</select>
+</mapper>

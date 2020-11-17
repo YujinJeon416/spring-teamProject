@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="mappers.gsh-movie-mapper">
+
+
+	<!-- 최신등록된 영화 목록 가져오기 -->
+	<select id="select_movieAll" resultType="GshMovieDto">
+		select * from (select rownum rnum, a.* from (select m.movie_code movie_code, movie_name, movie_main_image, movie_grade, review_score
+	    from tbl_movie m, (select movie_code, round(avg(review_score)) review_score
+	    from tbl_review
+	    group by movie_code) r
+	    where m.movie_code = r.movie_code(+)
+	    <if test='gsh_keyword != null'>
+	    	<choose>
+	    	<when test='gsh_searchType == "movie_name"'>
+	    		and movie_name like '%' || #{gsh_keyword} || '%'
+	    	</when>
+	    	<when test='gsh_searchType == "movie_genre"'>
+	    		and movie_genre like '%' || #{gsh_keyword} || '%'
+	    	</when>
+	    	</choose>
+	    </if>
+		order by m.movie_regist_date desc) a)
+        where rnum between #{startRow} and #{endRow}
+        
+        
+	</select>
+	
+		
+	<!-- 영화 페이지 영화 총 수 구하기 -->
+	<select id="getMovieCount" resultType="integer">
+		select count(*) from tbl_movie
+		 <if test='gsh_keyword != null'>
+	    	<choose>
+	    	<when test='gsh_searchType == "movie_name"'>
+	    		where movie_name like '%' || #{gsh_keyword} || '%'
+	    	</when>
+	    	<when test='gsh_searchType == "movie_genre"'>
+	    		where movie_genre like '%' || #{gsh_keyword} || '%'
+	    	</when>
+	    	</choose>
+	    </if>
+	</select>
+	
+	<!-- 영화감독 이름으로 영화 찾기 -->
+	<select id="select_movie_director">
+		select * from tbl_movie
+		where movie_director = #{movie_director}
+	</select>
+	
+	<!-- 영화배우 이름으로 영화 찾기 -->
+	<select id="select_movie_actor">
+		select * from tbl_movie
+		where movie_actor = #{movie_actor}
+	</select>
+	
+	<!-- 영화등급으로 영화 찾기 -->
+	<select id="select_movie_grade">
+		select * from tbl_movie
+		where movie_grade = #{movie_grade}
+	</select>
+
+	
+	<!--  영화 코드로 영화정보 찾기 -->
+	<select id="select_movie_code" resultType="GshMovieDto">
+<!-- 		select * from tbl_movie -->
+<!-- 		where movie_code = #{movie_code} -->
+
+			select * from
+			    (select * from tbl_movie
+			     where movie_code = #{movie_code}),
+			    (select round(avg(review_score)) review_score from tbl_review
+			     where movie_code = #{movie_code})
+	</select>
+	
+	<!-- 영화 내용 가져오기 -->
+	<select id="select_movie_content" resultType="GshMovieDto">
+		select m.movie_code, m.movie_name, m.movie_genre, m.movie_director, m.movie_actor, m.movie_grade, m.movie_main_image, m.movie_content, r.review_content,  r.review_score
+		from tbl_movie m , tbl_review r
+		where m.movie_code = #{movie_code}
+		and m.movie_code = r.movie_code
+	</select>
+		
+	<!-- 영화 서브 이미지(스틸컷) 가져오기 -->
+	<select id="select_movie_sub_iamage" resultType="string">
+		select movie_sub_image from tbl_movie_image
+		where movie_code = #{movie_code}
+	</select>
+</mapper>

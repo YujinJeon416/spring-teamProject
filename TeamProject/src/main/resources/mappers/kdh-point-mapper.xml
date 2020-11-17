@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="mappers.kdh-point-mapper">
+
+<!-- 포인트코드 테이블 조회 -->
+<select id="selectFoodPercent" resultType="KdhPointCodeVo">
+	select * from tbl_point_code
+    where point_name = 'foodPoint'
+</select>
+
+<!-- 아이디로 쿠폰 전체 조회 -->
+<select id="selectPointById" resultType="KdhPointVo">
+	select p.point_num, p.point, p.user_id, p.point_date, p.point_code, pc.point_percent,pc.point_name
+	from tbl_point p, tbl_point_code pc
+	where p.point_code = pc.point_code and user_id = #{user_id}
+	
+</select>
+
+<!-- 물건을 살때 포인트 테이블에 데이터 넣기 -->
+<insert id="insertPointInData">
+	insert into tbl_point(point_num,point_code,user_id,point_date, point)
+	values(seq_point_num.nextval, 'PC2', #{user_id}, sysdate, #{food_buy_price}/#{point_percent})
+</insert>	
+
+<!-- 총 포인트 합계 구하기 -->
+<select id="selectTotalPoint" resultType="int">
+	select sum(point) from tbl_point
+	where user_id = #{user_id}
+</select>
+
+<!-- 유저 데이터 포인트 업데이트 -->
+<update id="updateTotalUserPoint">
+	update tbl_user set
+	user_point = user_point + (#{food_buy_price}/#{point_percent})
+	where user_id = #{user_id}
+</update>
+
+<!-- 포인트 쓴만큼 차감 -->
+<update id="updateUserPoint">
+	update tbl_user set
+	user_point = user_point - #{used_Point}
+	where user_id = #{user_id}
+</update>
+
+<!-- 유저 포인트 찾기 -->
+<select id="selectPointByUserId" resultType="int">
+	select user_point from tbl_user
+	where user_id = #{user_id}
+</select>
+
+<!-- 마이페이지 포인트 내역 데이터 넣기 -->
+<insert id="insertUsedPointInfo">
+	insert into tbl_used_point(point_used_num, point_used_code, user_id, used_point, used_point_date)
+	values(seq_used_point_num.nextval, 'PS2', #{user_id}, #{used_point}, sysdate)
+</insert>
+
+<!-- 마이페이지 포인트 내역 보기 -->
+<select id="selectUsedPointInfo" resultType="KdhMypagePointDto">
+	select up.used_point, up.used_point_date, upc.point_used_name
+	from tbl_used_point up, tbl_used_point_code upc
+	where up.point_used_code = up.point_used_code and upc.point_used_code = 'PS1' and up.user_id = #{user_id}
+</select>
+</mapper>
