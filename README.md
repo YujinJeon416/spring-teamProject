@@ -37,5 +37,5 @@
 ## 실행화면_마이페이지 화면
 <div>
 <img src="https://user-images.githubusercontent.com/74242098/99419520-8c646400-293f-11eb-89be-ffa062c89377.png" width="400"></img>
-<img src="https://user-images.githubusercontent.com/74242098/99419522-8cfcfa80-293f-11eb-9308-5cbda404a249.png" width="500"></img>
+<img src="https://user-images.githubusercontent.com/74242098/99419522-8cfcfa80-293f-11eb-9308-5cbda404a249.png" width="400"></img>
 </div>  
