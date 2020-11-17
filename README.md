@@ -21,9 +21,9 @@
 
 ## 실행화면_스토어 화면
 <div>
-<img src="https://user-images.githubusercontent.com/74242098/99419495-88384680-293f-11eb-8a96-ff437ffe0483.png" width=300"></img>
-<img src="https://user-images.githubusercontent.com/74242098/99419506-89697380-293f-11eb-94f9-e5950ef6392d.png" width="300"></img>
-<img src="https://user-images.githubusercontent.com/74242098/99419510-8a020a00-293f-11eb-9b32-708baabe1e39.png" width="300"></img>
+<img src="https://user-images.githubusercontent.com/74242098/99419495-88384680-293f-11eb-8a96-ff437ffe0483.png" width=250"></img>
+<img src="https://user-images.githubusercontent.com/74242098/99419506-89697380-293f-11eb-94f9-e5950ef6392d.png" width="250"></img>
+<img src="https://user-images.githubusercontent.com/74242098/99419510-8a020a00-293f-11eb-9b32-708baabe1e39.png" width="250"></img>
 </div>  
 <hr/>
 
